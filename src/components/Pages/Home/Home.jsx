@@ -11,9 +11,15 @@ export default function Home() {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    getExams()
-      .then((res) => setExams(res.data.data || []))
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to load dashboard.'))
+    async function loadExams() {
+      try {
+        const res = await getExams()
+        setExams(res.data.data || [])
+      } catch (err) {
+        setMessage(err.response?.data?.message || 'Unable to load dashboard.')
+      }
+    }
+    loadExams()
   }, [])
 
   const firstName = profile?.firstName || profile?.name?.firstName || 'Student'

@@ -28,12 +28,16 @@ export default function AdminExams() {
     loadExams()
   }, [])
 
-  function loadExams() {
+  async function loadExams() {
     setLoading(true)
-    getExams()
-      .then((res) => setExams(res.data.data || []))
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to load exams.'))
-      .finally(() => setLoading(false))
+    try {
+      const res = await getExams()
+      setExams(res.data.data || [])
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Unable to load exams.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   function handleExamChange(event) {
@@ -68,23 +72,24 @@ export default function AdminExams() {
     return ''
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     const formError = validate(examData)
     setError(formError)
     setMessage('')
     if (formError) return
     setSaving(true)
-    const request = editingExamId ? updateExam(editingExamId, examData) : createExam(examData)
-    request
-      .then((res) => {
-        setMessage(res.data.message || 'Exam saved.')
-        setExamData(emptyExam)
-        setEditingExamId('')
-        loadExams()
-      })
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to save exam.'))
-      .finally(() => setSaving(false))
+    try {
+      const res = await (editingExamId ? updateExam(editingExamId, examData) : createExam(examData))
+      setMessage(res.data.message || 'Exam saved.')
+      setExamData(emptyExam)
+      setEditingExamId('')
+      loadExams()
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Unable to save exam.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   function startEditExam(exam) {
@@ -104,13 +109,14 @@ export default function AdminExams() {
     })
   }
 
-  function handleDeleteExam(examId) {
-    deleteExam(examId)
-      .then((res) => {
-        setMessage(res.data.message || 'Exam deleted.')
-        loadExams()
-      })
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to delete exam.'))
+  async function handleDeleteExam(examId) {
+    try {
+      const res = await deleteExam(examId)
+      setMessage(res.data.message || 'Exam deleted.')
+      loadExams()
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Unable to delete exam.')
+    }
   }
 
   return (

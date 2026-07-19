@@ -29,7 +29,7 @@ export default function Login() {
     return Object.keys(formError).length === 0
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     setApiError('')
 
@@ -37,24 +37,22 @@ export default function Login() {
 
     setLoading(true)
 
-    login(loginData)
-      .then((res) => {
-        const { success, message, role, token } = res.data
+    try {
+      const res = await login(loginData)
+      const { success, message, role, token } = res.data
 
-        if (success && token) {
-          saveAuthToken(token)
-          navigate(role === 'admin' ? '/admin/dashboard' : '/student/dashboard', { replace: true })
-          return
-        }
+      if (success && token) {
+        saveAuthToken(token)
+        navigate(role === 'admin' ? '/admin/dashboard' : '/student/dashboard', { replace: true })
+        return
+      }
 
-        setApiError(message || 'Unable to login. Please try again.')
-      })
-      .catch((err) => {
-        setApiError(err.response?.data?.message || 'Unable to login. Please try again.')
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+      setApiError(message || 'Unable to login. Please try again.')
+    } catch (err) {
+      setApiError(err.response?.data?.message || 'Unable to login. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

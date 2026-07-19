@@ -23,12 +23,16 @@ export default function AdminStudents() {
     loadStudents()
   }, [])
 
-  function loadStudents() {
+  async function loadStudents() {
     setLoading(true)
-    getStudents()
-      .then((res) => setStudents(res.data.data || []))
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to load students.'))
-      .finally(() => setLoading(false))
+    try {
+      const res = await getStudents()
+      setStudents(res.data.data || [])
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Unable to load students.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   function handleChange(event) {
@@ -46,21 +50,23 @@ export default function AdminStudents() {
     return ''
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     const formError = validate(studentData)
     setError(formError)
     setMessage('')
     if (formError) return
     setSaving(true)
-    createStudent(studentData)
-      .then((res) => {
-        setMessage(res.data.message || 'Student created.')
-        setStudentData(emptyStudent)
-        loadStudents()
-      })
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to create student.'))
-      .finally(() => setSaving(false))
+    try {
+      const res = await createStudent(studentData)
+      setMessage(res.data.message || 'Student created.')
+      setStudentData(emptyStudent)
+      loadStudents()
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Unable to create student.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (

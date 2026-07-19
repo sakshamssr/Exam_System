@@ -11,15 +11,19 @@ export default function AdminDashboard() {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    Promise.all([getExams(), getStudents(), getAllResults()])
-      .then(([examRes, studentRes, resultRes]) => {
+    async function loadData() {
+      try {
+        const [examRes, studentRes, resultRes] = await Promise.all([getExams(), getStudents(), getAllResults()])
         setCounts({
           exams: examRes.data.data?.length || 0,
           students: studentRes.data.data?.length || 0,
           results: resultRes.data.data?.length || 0,
         })
-      })
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to load admin dashboard.'))
+      } catch (err) {
+        setMessage(err.response?.data?.message || 'Unable to load admin dashboard.')
+      }
+    }
+    loadData()
   }, [])
 
   return (

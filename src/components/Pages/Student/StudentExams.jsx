@@ -10,10 +10,18 @@ export default function StudentExams() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getExams()
-      .then((res) => setExams(res.data.data || []))
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to load exams.'))
-      .finally(() => setLoading(false))
+    async function loadExams() {
+      setLoading(true)
+      try {
+        const res = await getExams()
+        setExams(res.data.data || [])
+      } catch (err) {
+        setMessage(err.response?.data?.message || 'Unable to load exams.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadExams()
   }, [])
 
   return (

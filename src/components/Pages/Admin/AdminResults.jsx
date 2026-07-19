@@ -8,10 +8,18 @@ export default function AdminResults() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getAllResults()
-      .then((res) => setResults(res.data.data || []))
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to load results.'))
-      .finally(() => setLoading(false))
+    async function loadResults() {
+      setLoading(true)
+      try {
+        const res = await getAllResults()
+        setResults(res.data.data || [])
+      } catch (err) {
+        setMessage(err.response?.data?.message || 'Unable to load results.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadResults()
   }, [])
 
   return (

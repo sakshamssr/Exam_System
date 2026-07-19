@@ -41,7 +41,7 @@ export default function Register() {
     return Object.keys(formError).length === 0
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     setApiError('')
 
@@ -49,24 +49,22 @@ export default function Register() {
 
     setLoading(true)
 
-    signup(signupData)
-      .then((res) => {
-        const { success, message, token } = res.data
+    try {
+      const res = await signup(signupData)
+      const { success, message, token } = res.data
 
-        if (success && token) {
-          saveAuthToken(token)
-          navigate('/student/dashboard', { replace: true })
-          return
-        }
+      if (success && token) {
+        saveAuthToken(token)
+        navigate('/student/dashboard', { replace: true })
+        return
+      }
 
-        setApiError(message || 'Unable to create account. Please try again.')
-      })
-      .catch((err) => {
-        setApiError(err.response?.data?.message || 'Unable to create account. Please try again.')
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+      setApiError(message || 'Unable to create account. Please try again.')
+    } catch (err) {
+      setApiError(err.response?.data?.message || 'Unable to create account. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

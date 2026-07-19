@@ -36,18 +36,20 @@ export default function StudentProfile() {
     return Object.keys(formError).length === 0
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     setMessage('')
     if (!validate(profileData)) return
     setSaving(true)
-    updateProfile(profileData)
-      .then((res) => {
-        if (res.data.token) saveAuthToken(res.data.token)
-        setMessage(res.data.message || 'Profile updated.')
-      })
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to update profile.'))
-      .finally(() => setSaving(false))
+    try {
+      const res = await updateProfile(profileData)
+      if (res.data.token) saveAuthToken(res.data.token)
+      setMessage(res.data.message || 'Profile updated.')
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Unable to update profile.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (

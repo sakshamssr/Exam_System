@@ -8,10 +8,18 @@ export default function Results() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getMyResults()
-      .then((res) => setResults(res.data.data || []))
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to load results.'))
-      .finally(() => setLoading(false))
+    async function loadResults() {
+      setLoading(true)
+      try {
+        const res = await getMyResults()
+        setResults(res.data.data || [])
+      } catch (err) {
+        setMessage(err.response?.data?.message || 'Unable to load results.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadResults()
   }, [])
 
   return (

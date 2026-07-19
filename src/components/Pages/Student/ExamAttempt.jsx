@@ -13,17 +13,24 @@ export default function ExamAttempt() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    getExam(id)
-      .then((res) => setExam(res.data.data))
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to load exam.'))
-      .finally(() => setLoading(false))
+    async function loadExam() {
+      try {
+        const res = await getExam(id)
+        setExam(res.data.data)
+      } catch (err) {
+        setMessage(err.response?.data?.message || 'Unable to load exam.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadExam()
   }, [id])
 
   function handleAnswer(questionId, selectedAnswer) {
     setAnswers({ ...answers, [questionId]: selectedAnswer })
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     setMessage('')
 
@@ -33,10 +40,14 @@ export default function ExamAttempt() {
     }))
 
     setSubmitting(true)
-    submitExam(id, payload)
-      .then(() => navigate('/student/results', { replace: true }))
-      .catch((err) => setMessage(err.response?.data?.message || 'Unable to submit exam.'))
-      .finally(() => setSubmitting(false))
+    try {
+      await submitExam(id, payload)
+      navigate('/student/results', { replace: true })
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Unable to submit exam.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (loading) {
